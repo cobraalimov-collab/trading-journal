@@ -1,628 +1,692 @@
 <!DOCTYPE html>
-<html lang="uz">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Trading Jurnali</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>document.documentElement.dataset.theme=localStorage.getItem('bcpj_theme')==='light'?'light':'dark';</script>
+<title>Behruz Crypto Pro Journal</title>
 <style>
-:root{--bg:#0f1115;--panel:#181b22;--panel2:#12141a;--line:#2a2f3a;--text:#e6e8ee;--muted:#8a90a0;
---green:#22c55e;--red:#ef4444;--gray:#64748b;--blue:#3b82f6;}
+:root{color-scheme:dark;--bg:#000000;--card:#0A0A0A;--line:#1F1F23;--txt:#E6EBF2;--mut:#7D8898;--input:#111113;--tag:#1A1A1E;--zero:#333333;--g:#16C784;--r:#EA3943;--acc:#3b82f6}
+:root[data-theme="light"]{color-scheme:light;--bg:#F8FAFD;--card:#FFFFFF;--line:#E5E7EB;--txt:#0F172A;--mut:#64748B;--input:#FFFFFF;--tag:#EEF2F7;--zero:#CBD5E1;--g:#16C784;--r:#EA3943;--acc:#3b82f6}
 *{box-sizing:border-box}
-body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text)}
-header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--line)}
-h1{font-size:20px;margin:0}
-.btn{background:var(--blue);color:#fff;border:0;padding:9px 16px;border-radius:8px;cursor:pointer;font-size:14px;display:inline-block}
-.btn:hover{filter:brightness(1.1)}
-.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
-.btn.danger{background:var(--red)}
-.btn.small{padding:4px 10px;font-size:12px}
-input,select,textarea{background:var(--panel);border:1px solid var(--line);color:var(--text);padding:8px 10px;border-radius:8px;font-size:14px;font-family:inherit;width:100%}
-textarea{resize:vertical;min-height:70px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;padding:20px 24px}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
-.card .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em}
-.card .value{font-size:22px;font-weight:600;margin-top:6px}
-.chart-card{margin:0 24px 20px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-.chart-head{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:12px}
-.chart-head h2{font-size:16px;margin:0}
-.chart-controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.chart-controls select,.chart-controls input{width:auto;min-width:140px}
-.chart-box{position:relative;height:300px}
-.toolbar{display:flex;flex-wrap:wrap;gap:10px;padding:0 24px 12px;align-items:center}
-.search{flex:1;min-width:200px}
-.toolbar select{width:auto}
-.table-wrap{overflow-x:auto;margin:0 24px 40px;border:1px solid var(--line);border-radius:12px}
-table{width:100%;border-collapse:collapse;font-size:13px;min-width:1100px}
-th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
-th{background:var(--panel2);color:var(--muted);font-weight:500;position:sticky;top:0}
-tbody tr{cursor:pointer}
-tbody tr:hover td{background:#1c2029}
-.badge{padding:3px 9px;border-radius:999px;font-size:12px;font-weight:600;color:#fff}
-.long{background:var(--green)}.short{background:var(--red)}
-.tp{background:var(--green)}.loss{background:var(--red)}.be{background:var(--gray)}
-.tag{background:#2a2f3a;border-radius:6px;padding:3px 8px;font-size:12px;color:#cbd5e1}
-.arg-SMC{background:#f59e0b33;color:#fbbf24}
-.arg-OB{background:#f9731633;color:#fb923c}
-.arg-OF{background:#ef444433;color:#f87171}
-.arg-D{background:#f5c94233;color:#fde047}
-.pos{color:var(--green);font-weight:600}.neg{color:var(--red);font-weight:600}
-a{color:var(--blue);text-decoration:none}
-.muted{color:var(--muted)}
-.empty{text-align:center;color:var(--muted);padding:30px}
-
-/* Modal */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-start;justify-content:center;overflow-y:auto;padding:40px 16px}
-.modal-bg.show{display:flex}
-.modal{background:var(--panel);border:1px solid var(--line);border-radius:14px;width:100%;max-width:1000px}
-.modal-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}
-.modal-head h2{font-size:18px;margin:0}
-.modal-body{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:20px}
-.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.fields label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
-.fields .full{grid-column:1/-1}
-.imgs{display:flex;flex-direction:column;gap:14px}
-.imgbox{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--panel2)}
-.imgbox .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;color:var(--muted)}
-.imgbox .preview{width:100%;height:220px;border-radius:8px;background:#0b0d11;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:zoom-in}
-.imgbox .preview img{max-width:100%;max-height:100%;object-fit:contain}
-.imgbox .preview span{color:var(--muted);font-size:13px}
-.imgbox .row{display:flex;gap:8px;margin-top:8px;align-items:center}
-.imgbox input[type=file]{font-size:12px;color:var(--muted);width:auto}
-.modal-foot{display:flex;justify-content:space-between;gap:8px;padding:14px 20px;border-top:1px solid var(--line)}
-.modal-foot .right{display:flex;gap:8px}
-
-/* Lightbox */
-.lightbox{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:100;align-items:center;justify-content:center;padding:20px;cursor:zoom-out}
-.lightbox.show{display:flex}
-.lightbox img{max-width:95vw;max-height:92vh;object-fit:contain;border-radius:8px}
-
-@media (max-width:760px){
-  .modal-body{grid-template-columns:1fr}
-  .fields{grid-template-columns:1fr}
-}
-</style>
-</head>
+body{margin:0;background:var(--bg);color:var(--txt);font:14px/1.4 system-ui,-apple-system,Segoe UI,sans-serif;padding:16px}
+h1{font-size:20px;margin:8px 0 2px}
+h2{font-size:16px;margin:0}
+.sub{color:var(--mut);font-size:12px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:14px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+select,input,button{background:var(--input);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit}
+button{cursor:pointer}
+button.p{background:var(--acc);border-color:var(--acc);color:#fff}
+.lang{display:inline-flex;background:var(--input);border:1px solid var(--line);border-radius:999px;padding:3px;gap:2px}
+.lang button{border:0;background:transparent;color:var(--mut);padding:4px 9px;border-radius:999px;font-size:12px;font-weight:600}
+.lang button.on{background:var(--acc);color:#fff}
+.theme-btn{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;padding:0}
+.kpis{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--mut);margin:6px 0 10px}
+.kpis b{color:var(--txt);font-size:15px;display:block}
+.periods{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:14px}
+.periods .card{margin:0}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;margin-bottom:12px}
+.charts .card{margin:0}
+.charts b{font-size:13px}
+svg{width:100%;height:auto;display:block;overflow:visible}
+.audit{border-left:3px solid var(--acc);margin-bottom:12px}
+.audit ul{margin:6px 0 0;padding-left:18px}
+.audit li{margin:4px 0;font-size:13px}
+.warn{color:var(--r)}
+.good{color:var(--g)}
+.hl{box-shadow:0 0 0 2px var(--acc)}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;table-layout:fixed;font-size:12px}
+th,td{padding:5px 4px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap;overflow:hidden}
+th{color:var(--mut);font-weight:500}
+input.c{width:46px;font-size:12px;padding:3px 4px}
+input.usd{width:90px;font-size:12px;padding:3px 4px}
+input.url{width:100%;min-width:0;font-size:11px;padding:3px 4px}
+input.d{width:112px;font-size:11px;padding:3px 4px}
+input.pr{width:70px;font-size:12px;padding:3px 4px}
+input.st{width:100%;min-width:0;font-size:11px;padding:3px 4px;text-overflow:ellipsis}
+input.tf{width:44px;font-size:11px;padding:3px 2px}
+input.bal{width:110px}
+select[data-f=addemo]{width:54px;font-size:11px;padding:2px}
+select.tp,select.sl,select.be{font-size:11px;padding:3px 4px;width:50px;border:0;font-weight:600;color:#fff}
+select.tp{background:var(--g);color:#04110b}
+select.sl{background:var(--r)}
+select.be{background:#4b5563}
+button.L,button.S{border:0;border-radius:999px;padding:3px 8px;font-weight:600;font-size:11px}
+button.L{background:var(--g);color:#04110b}
+button.S{background:var(--r);color:#fff}
+.link{color:var(--acc);text-decoration:none;border:1px solid var(--line);padding:4px 8px;border-radius:8px;font-size:12px}
+.tag{display:inline-block;background:var(--tag);border-radius:6px;padding:1px 4px;margin:1px;font-size:11px}
+.x{cursor:pointer;color:var(--mut);margin-left:3px}
+.pos{color:var(--g)}.neg{color:var(--r)}
+.done{font-size:11px;color:var(--g);border:1px solid var(--g);border-radius:999px;padding:1px 8px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.78);display:flex;align-items:center;justify-content:center;padding:16px;z-index:9}
+.modal .card{max-width:380px;width:100%;margin:0}
+.hidden{display:none!important}
+.err{color:var(--r);font-size:12px;min-height:16px}
+.cv{background:#22c55e;border:0;border-radius:6px;padding:4px 6px;color:#04110b;font-size:13px;line-height:1;cursor:pointer;transition:filter .15s}
+.cv:hover{filter:brightness(1.15)}
+.cmp{position:fixed;inset:0;width:100vw;height:100vh;z-index:9999;background:var(--bg);display:flex;flex-direction:column}
+.cmp-head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--card)}
+.cmp-stat{font-size:12px;color:var(--mut)}
+.cmp-stat b{color:var(--txt);font-size:14px;margin-left:4px}
+.cmp-close{background:#3a1f24;border:1px solid var(--r);color:#ffb4b9;font-weight:600;border-radius:8px;padding:6px 12px}
+.cmp-close:hover{background:var(--r);color:#fff}
+.cmp-body{flex:1;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:minmax(0,1fr);min-height:0}
+.pane{position:relative;overflow:hidden;min-height:0;border-right:1px solid var(--line)}
+.pane:last-child{border-right:0}
+.plabel{position:absolute;top:8px;left:8px;z-index:2;background:var(--input);color:var(--txt);font-size:11px;font-weight:600;padding:4px 8px;border-radius:8px;border:1px solid var(--line)}
+.open{position:absolute;top:8px;right:8px;z-index:2;background:var(--input);border:1px solid var(--line);color:var(--acc);padding:4px 8px;border-radius:8px;font-size:12px;text-decoration:none}
+.imgwrap{position:absolute;inset:0;overflow:auto;background:#000}
+.imgwrap img{width:100%;height:100%;object-fit:contain;display:block;cursor:zoom-in}
+.imgwrap.z img{width:200%;height:auto;max-width:none;object-fit:initial;cursor:zoom-out}
+.frame{position:absolute;inset:0;width:100%;height:100%;border:0}
+.ph{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mut);background:var(--card);font-size:14px;padding:16px;text-align:center}
+.paneact{position:absolute;bottom:8px;left:8px;z-index:2;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.paneact button{background:var(--input);border:1px solid var(--line);color:var(--txt);border-radius:8px;padding:4px 8px;font-size:12px}
+.paneact .hint{font-size:11px;color:var(--mut);background:var(--input);padding:4px 6px;border-radius:8px}
+.pane.act .plabel{border-color:var(--acc)}
+.cnote{position:absolute;left:8px;right:8px;bottom:44px;z-index:2;font-size:11px;color:var(--mut);background:var(--input);border:1px solid var(--line);padding:4px 6px;border-radius:8px}
+@media (max-width:700px){.cmp-body{grid-template-columns:1fr 1fr}.pane{border-right:1px solid var(--line)}}
+.modal .pay{max-width:420px;width:100%;margin:0;text-align:center;padding:24px}
+.pay-badge{display:inline-block;background:var(--g);color:#04110b;font-weight:700;font-size:12px;padding:3px 10px;border-radius:999px;margin-bottom:10px}
+.pay-title{font-size:20px;margin:0 0 8px}
+.pay-sub{color:var(--mut);font-size:13px;margin:0 0 18px}
+.pay-btn{width:100%;background:var(--g);color:#04110b;border:0;border-radius:12px;padding:18px 14px;font-size:17px;font-weight:700;box-shadow:0 8px 24px rgba(22,199,132,.35);cursor:pointer}
+.pay-btn:hover{filter:brightness(1.08)}
+.pay-fine{color:var(--mut);font-size:12px;margin:12px 0 0}
+.pay-backup{margin-top:18px;font-size:12px}
+.pay-backup a{color:var(--mut);text-decoration:underline;cursor:pointer}
+.pay-backup #backupBox{margin-top:10px}
+</style></head>
 <body>
 
-<header>
-  <h1>📈 Trading Jurnali</h1>
-  <div style="display:flex;gap:8px;flex-wrap:wrap">
-    <button class="btn ghost" onclick="exportJSON()">Eksport</button>
-    <label class="btn ghost" style="cursor:pointer">Import
-      <input type="file" accept=".json" onchange="importJSON(event)" hidden>
-    </label>
-    <button class="btn" onclick="openNew()">+ Yangi savdo</button>
-  </div>
-</header>
-
-<section class="stats">
-  <div class="card"><div class="label">Jami savdo</div><div class="value" id="sTotal">0</div></div>
-  <div class="card"><div class="label">Win rate</div><div class="value" id="sWin">0%</div></div>
-  <div class="card"><div class="label">Umumiy foyda</div><div class="value" id="sProfit">$0</div></div>
-  <div class="card"><div class="label">O'rtacha R/R</div><div class="value" id="sRR">0</div></div>
-  <div class="card"><div class="label">TP / Loss / BU</div><div class="value" id="sBreakdown">0 / 0 / 0</div></div>
-</section>
-
-<section class="chart-card">
-  <div class="chart-head">
-    <div>
-      <h2>Equity Curve</h2>
-      <div class="muted" style="font-size:13px;margin-top:4px" id="chartSummary"></div>
-    </div>
-    <div class="chart-controls">
-      <label class="muted" style="font-size:13px">Boshlang'ich balans ($)
-        <input type="number" id="startBal" step="0.01" value="0" oninput="onStartBalChange()">
-      </label>
-      <select id="period" onchange="renderChart()">
-        <option value="all">Barcha oylar</option>
-        <option value="last30">Oxirgi 1 oy</option>
-      </select>
+<div id="gate" class="modal hidden"><div class="card pay">
+  <div class="pay-badge">PRO</div>
+  <h1 class="pay-title">Behruz Crypto Pro Journal — Pro Access ($50)</h1>
+  <p class="pay-sub">Full access to the journal: trade logging, USD P&amp;L, chart comparison, and the monthly AI audit. One-time payment.</p>
+  <button id="payBtn" class="pay-btn">Pay $50 via Card or Crypto (Instant Access) ↗</button>
+  <p class="pay-fine">Access unlocks automatically when you return from payment.</p>
+  <div class="pay-backup">
+    <a id="backupToggle">Already paid? Enter backup code</a>
+    <div id="backupBox" class="hidden">
+      <div class="bar"><input id="lic" placeholder="Backup code" style="flex:1"><button class="p" id="unlock">Unlock</button></div>
+      <div id="gerr" class="err"></div>
     </div>
   </div>
-  <div class="chart-box"><canvas id="equityChart"></canvas></div>
-</section>
+</div></div>
 
-<div class="toolbar">
-  <input class="search" id="search" placeholder="Juftlik yoki izoh bo'yicha qidirish..." oninput="render()">
-  <select id="fResult" onchange="render()">
-    <option value="">Barcha natija</option>
-    <option>Take Profit</option><option>Loss</option><option>BU</option>
-  </select>
-  <select id="fPos" onchange="render()">
-    <option value="">Barcha pozitsiya</option>
-    <option>Long</option><option>Short</option>
-  </select>
-  <select id="fArg" onchange="render()">
-    <option value="">Barcha argument</option>
-    <option>SMC</option><option>Order block</option><option>Order flow</option><option>Discount</option><option>Boshqa</option>
-  </select>
-</div>
-
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>Sana</th><th>Juftlik</th><th>Pozitsiya</th><th>Kirish</th><th>Chiqish</th>
-        <th>Argument</th><th>Risk %</th><th>R/R</th><th>Foyda</th><th>Natija</th><th>Izoh</th><th></th>
-      </tr>
-    </thead>
-    <tbody id="tbody"></tbody>
-  </table>
-  <div class="empty" id="empty" style="display:none">Savdolar yo'q. "+ Yangi savdo" tugmasini bosing.</div>
-</div>
-
-<!-- Detail modal -->
-<div class="modal-bg" id="modal" onclick="if(event.target===this) closeModal()">
-  <div class="modal">
-    <div class="modal-head">
-      <h2 id="mTitle">Yangi savdo</h2>
-      <button class="btn ghost small" onclick="closeModal()">✕</button>
-    </div>
-    <form id="mForm" onsubmit="saveModal(event)">
-      <div class="modal-body">
-        <div class="fields">
-          <label>Sana <input type="date" name="date" required></label>
-          <label>Juftlik <input type="text" name="pair" placeholder="SOLANAUSDT" required></label>
-          <label>Pozitsiya
-            <select name="position"><option>Long</option><option>Short</option></select>
-          </label>
-          <label>Argument
-            <select name="argument">
-              <option>SMC</option><option>Order block</option><option>Order flow</option><option>Discount</option><option>Boshqa</option>
-            </select>
-          </label>
-          <label>Risk % <input type="number" step="0.1" name="risk"></label>
-          <label>R/R <input type="number" step="0.1" name="rr"></label>
-          <label>Foyda ($) <input type="number" step="0.01" name="profit"></label>
-          <label>Natija
-            <select name="result"><option>Take Profit</option><option>Loss</option><option>BU</option></select>
-          </label>
-          <label class="full">Kirish havolasi <input type="url" name="before" placeholder="https://..."></label>
-          <label class="full">Chiqish havolasi <input type="url" name="after" placeholder="https://..."></label>
-          <label class="full">Izoh <textarea name="comment" placeholder="Savdo haqida izoh..."></textarea></label>
-        </div>
-
-        <div class="imgs">
-          <div class="imgbox">
-            <div class="head"><span>Before (kirish grafigi)</span></div>
-            <div class="preview" id="prevBefore" onclick="zoomImg('before')"><span>Rasm yo'q</span></div>
-            <div class="row">
-              <input type="file" accept="image/*" onchange="uploadImg('before', event)">
-              <button type="button" class="btn ghost small" onclick="clearImg('before')">O'chirish</button>
-            </div>
-          </div>
-          <div class="imgbox">
-            <div class="head"><span>After (chiqish grafigi)</span></div>
-            <div class="preview" id="prevAfter" onclick="zoomImg('after')"><span>Rasm yo'q</span></div>
-            <div class="row">
-              <input type="file" accept="image/*" onchange="uploadImg('after', event)">
-              <button type="button" class="btn ghost small" onclick="clearImg('after')">O'chirish</button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-foot">
-        <button type="button" class="btn danger" id="mDelete" onclick="deleteFromModal()">O'chirish</button>
-        <div class="right">
-          <button type="button" class="btn ghost" onclick="closeModal()">Bekor qilish</button>
-          <button type="submit" class="btn">Saqlash</button>
-        </div>
-      </div>
-    </form>
+<div class="bar" style="justify-content:space-between;align-items:flex-start">
+  <div><h1 data-i="title"></h1><div class="sub" data-i="sub"></div></div>
+  <div class="bar">
+    <label class="link" style="display:flex;align-items:center;gap:6px"><span data-i="balance"></span><input id="bal" class="bal" type="number" min="1" step="100"></label>
+    <button class="p" id="newmonth" data-i="newMonth"></button>
+    <div class="lang" id="lang"><button data-l="uz">UZ</button><button data-l="ru">RU</button><button data-l="en">EN</button></div>
+    <button id="theme" class="theme-btn" title="Dark / Light"></button>
+    <button id="exp" data-i="exp"></button>
+    <label class="link" style="cursor:pointer"><span data-i="imp"></span><input type="file" id="imp" accept="application/json" hidden></label>
   </div>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox()">
-  <img id="lightboxImg" src="" alt="">
+<div class="periods" id="periods"></div>
+<div id="months"></div>
+
+<datalist id="tfs"><option>15m</option><option>1H</option><option>4H</option><option>1D</option></datalist>
+
+<div id="cmp" class="cmp hidden" role="dialog" aria-modal="true">
+  <div class="cmp-head">
+    <span id="cmpPair" style="font-weight:700;font-size:16px"></span>
+    <span id="cmpSide"></span>
+    <span class="cmp-stat">Risk<b id="cmpRisk"></b></span>
+    <span class="cmp-stat">R:R<b id="cmpRR"></b></span>
+    <span class="cmp-stat">P&amp;L<b id="cmpPnl"></b></span>
+    <span style="flex:1"></span>
+    <span id="cmpTarget" class="cmp-stat"></span>
+    <button id="cmpClose" class="cmp-close">Close (X) ✕</button>
+  </div>
+  <input type="file" id="cmpFile" accept="image/*" hidden>
+  <div class="cmp-body" id="cmpBody"></div>
 </div>
 
-<script>
-const KEY = 'trading-journal-v1'; // same key as v1, so existing data is kept
-const START_KEY = 'trading-journal-start-balance';
-const GREEN = '#22c55e', RED = '#ef4444', MUTED = '#8a90a0';
+<script>/* ===== CONFIG (replace before publishing; visible to anyone who views the page source) ===== */
+const CONFIG = {
+  VIP_KEY: 'behruz-vip',
+  TELEGRAM: 'https://t.me/yourhandle'
+};
 
-const SAMPLE = [
-  {id:1,date:'2025-08-26',pair:'STCUSDT',position:'Long',before:'',after:'',argument:'SMC',risk:1,rr:1.3,profit:-10,result:'Loss',comment:''},
-  {id:2,date:'2025-08-29',pair:'GRAMUSDT',position:'Long',before:'',after:'',argument:'Order block',risk:1,rr:1.3,profit:30,result:'Take Profit',comment:'narmal'},
-  {id:3,date:'2025-09-01',pair:'SOLANAUSDT',position:'Long',before:'',after:'',argument:'SMC',risk:1,rr:1.3,profit:-10,result:'Loss',comment:'hissiyot'},
-  {id:4,date:'2025-09-08',pair:'BTCUSDT',position:'Long',before:'',after:'',argument:'Order block',risk:1,rr:1.3,profit:0,result:'BU',comment:'hissiyot'},
-  {id:5,date:'2025-09-18',pair:'HYPEUSDT',position:'Long',before:'',after:'',argument:'Order flow',risk:1,rr:1.3,profit:-10,result:'Loss',comment:'kayfiyat'},
-  {id:6,date:'2025-09-24',pair:'SOLANAUSDT',position:'Long',before:'',after:'',argument:'SMC',risk:1,rr:1.8,profit:34,result:'Take Profit',comment:'hissiyot'},
-  {id:7,date:'2025-10-03',pair:'BNBUSDT',position:'Long',before:'',after:'',argument:'Order flow',risk:1,rr:1.8,profit:-10,result:'Loss',comment:'hursand emas'},
-  {id:8,date:'2025-10-05',pair:'LINKUSDT',position:'Long',before:'',after:'',argument:'Discount',risk:1,rr:1.3,profit:25,result:'Take Profit',comment:''}
-];
-
-let trades = load();
-let equityChart = null;
-let mTrade = null;                 // trade being edited (null = new)
-let mImgs = {before:'', after:''}; // working copies of images in the modal
-
-/* ---------- storage ---------- */
-function load(){
-  try{
-    const d = JSON.parse(localStorage.getItem(KEY));
-    if(Array.isArray(d)) return d;
-  }catch(e){}
-  return SAMPLE.map(t => ({...t}));
-}
-function save(){
-  try{
-    localStorage.setItem(KEY, JSON.stringify(trades));
-    return true;
-  }catch(e){
-    alert("Xotira to'ldi (rasmlar juda katta bo'lishi mumkin). Eski rasmlarni o'chirib ko'ring yoki JSON eksport qiling.");
-    return false;
+/* ===== Translations (interface only; user data is never translated) ===== */
+const I18N = {
+  en: {
+    title:'Behruz Crypto Pro Journal', sub:'Each month is isolated. P&L is in USD. Data is saved in this browser. Export regularly.',
+    balance:'Balance / Capital ($)', newMonth:'+ Start New Month', newTrade:'+ New Trade', analyze:'Analyze Month', done:'Completed', exp:'Export JSON', imp:'Import JSON',
+    monthly:'Monthly', annual:'Annual', period:'Period', cTrades:'Trades',
+    kTrades:'Trades', kWin:'Win rate', kNet:'Net P&L', kAvg:'Avg R',
+    chartPL:'Profit & Loss Sequence ($)', chartEmo:'Emotions & Performance Sequence', noChart:'No trades this month',
+    noRows:'No trades this month. Click + New Trade to log one.',
+    cDate:'Date', cPair:'Pair', cSide:'Side', cBefore:'Before', cAfter:'After', cStrat:'Strategy', cRisk:'Risk', cRR:'R:R', cOut:'Outcome', cPnl:'P&L ($)', cTf:'TF', cEmo:'Emotions',
+    long:'LONG', short:'SHORT', tp:'TP', sl:'SL', be:'BE', tpFull:'Take Profit', slFull:'Stop Loss', beFull:'Breakeven',
+    ovTitle:'Type a $ amount (e.g. +$150 or -$50). Clear to use risk-based P&L.', edit:'Edit', del:'Delete', paste:'https://…', strategyPh:'SMC, Order Block',
+    addEmo:'+ add', customEmo:'+ Custom…', newEmo:'New emotion name:', confirmDel:'Delete this trade?',
+    badLink:'Please paste a full https:// link', badFile:'Invalid journal file',
+    auditTitle:'Monthly AI Audit & Mistake Analysis', noData:'No trades to analyze yet.', noLoss:'No losing trades this month. Strong discipline.',
+    emoLoss:(e,n,p)=>`Trades opened in ${e} state: ${n} losing, costing ${p}`,
+    worst:(pr,tf,w)=>`${pr} (${tf}) has the most stop-losses, win rate ${w}%`,
+    riskHi:(n,a)=>`${n} trade(s) risked more than your monthly average of ${a}%`,
+    revenge:(d,n)=>`${d}: ${n} stop-losses in a row, revenge-trading risk`,
+    best:(e,s,p)=>`${e} + ${s} produced ${p}`,
+    bestPair:(pr,p)=>`Best pair this month: ${pr} (${p})`,
+    emo:{Calm:'Calm',Confident:'Confident',Patient:'Patient',Greedy:'Greedy',FOMO:'FOMO',Fearful:'Fearful',Rushed:'Rushed'}
+  },
+  ru: {
+    title:'Behruz Crypto Pro Journal', sub:'Каждый месяц изолирован. P&L в долларах. Данные хранятся в этом браузере. Регулярно экспортируйте их.',
+    balance:'Баланс / Капитал ($)', newMonth:'+ Новый месяц', newTrade:'+ Сделка', analyze:'Анализ месяца', done:'Завершён', exp:'Экспорт JSON', imp:'Импорт JSON',
+    monthly:'По месяцам', annual:'По годам', period:'Период', cTrades:'Сделки',
+    kTrades:'Сделки', kWin:'Винрейт', kNet:'Общий P&L', kAvg:'Средний R',
+    chartPL:'Кривая прибыли и убытков ($)', chartEmo:'Эмоции и результаты', noChart:'Нет сделок за месяц',
+    noRows:'Нет сделок за месяц. Нажмите + Сделка, чтобы добавить.',
+    cDate:'Дата', cPair:'Пара', cSide:'Сторона', cBefore:'До', cAfter:'После', cStrat:'Стратегия', cRisk:'Риск', cRR:'R:R', cOut:'Итог', cPnl:'P&L ($)', cTf:'TF', cEmo:'Эмоции',
+    long:'ЛОНГ', short:'ШОРТ', tp:'TP', sl:'SL', be:'BE', tpFull:'Тейк-профит', slFull:'Стоп-лосс', beFull:'Безубыток',
+    ovTitle:'Введите сумму в $ (например +$150 или -$50). Очистите, чтобы вернуть расчёт по риску.', edit:'Изменить', del:'Удалить', paste:'https://…', strategyPh:'SMC, Order Block',
+    addEmo:'+ добавить', customEmo:'+ Своя…', newEmo:'Название новой эмоции:', confirmDel:'Удалить эту сделку?',
+    badLink:'Вставьте полную ссылку https://', badFile:'Неверный файл журнала',
+    auditTitle:'Ежемесячный AI-аудит и разбор ошибок', noData:'Пока нет сделок для анализа.', noLoss:'В этом месяце нет убыточных сделок. Отличная дисциплина.',
+    emoLoss:(e,n,p)=>`Сделки в состоянии «${e}»: ${n} убыточных, итог ${p}`,
+    worst:(pr,tf,w)=>`${pr} (${tf}) — больше всего стопов, винрейт ${w}%`,
+    riskHi:(n,a)=>`${n} сделок с риском выше среднего за месяц (${a}%)`,
+    revenge:(d,n)=>`${d}: ${n} стопа подряд — риск мести рынку (revenge trading)`,
+    best:(e,s,p)=>`${e} + ${s} принесли ${p}`,
+    bestPair:(pr,p)=>`Лучшая пара месяца: ${pr} (${p})`,
+    emo:{Calm:'Спокойствие',Confident:'Уверенность',Patient:'Терпение',Greedy:'Жадность',FOMO:'FOMO',Fearful:'Страх',Rushed:'Спешка'}
+  },
+  uz: {
+    title:'Behruz Crypto Pro Journal', sub:'Har bir oy alohida saqlanadi. P&L AQSh dollarida. Ma’lumotlar shu brauzerda saqlanadi. Muntazam eksport qiling.',
+    balance:'Balans / Kapital ($)', newMonth:'+ Yangi oy', newTrade:'+ Savdo', analyze:'Oyni tahlil qilish', done:'Yakunlangan', exp:'JSON eksport', imp:'JSON import',
+    monthly:'Oylik', annual:'Yillik', period:'Davr', cTrades:'Savdolar',
+    kTrades:'Savdolar', kWin:'Yutish foizi', kNet:'Umumiy P&L', kAvg:'O’rtacha R',
+    chartPL:'Foyda va Zarar Ketma-ketligi ($)', chartEmo:'Emotsiyalar va Natijalar Ketma-ketligi', noChart:'Bu oyda savdo yo’q',
+    noRows:'Bu oyda savdo yo’q. + Savdo tugmasini bosing.',
+    cDate:'Sana', cPair:'Juftlik', cSide:'Yo’nalish', cBefore:'Oldin', cAfter:'Keyin', cStrat:'Strategiya', cRisk:'Risk', cRR:'R:R', cOut:'Natija', cPnl:'P&L ($)', cTf:'TF', cEmo:'Emotsiyalar',
+    long:'LONG', short:'SHORT', tp:'TP', sl:'SL', be:'BE', tpFull:'Take Profit', slFull:'Stop Loss', beFull:'Breakeven',
+    ovTitle:'$ miqdorini kiriting (masalan +$150 yoki -$50). Bo’shatsangiz, risk asosida hisoblanadi.', edit:'Tahrirlash', del:'O’chirish', paste:'https://…', strategyPh:'SMC, Order Block',
+    addEmo:'+ qo’shish', customEmo:'+ Yangi…', newEmo:'Yangi emotsiya nomi:', confirmDel:'Bu savdoni o’chirasizmi?',
+    badLink:'To’liq https:// havolasini kiriting', badFile:'Noto’g’ri fayl',
+    auditTitle:'Oylik AI audit va xatolar tahlili', noData:'Tahlil uchun hali savdo yo’q.', noLoss:'Bu oyda zararli savdo yo’q. Ajoyib intizom.',
+    emoLoss:(e,n,p)=>`${e} holatida ochilgan ${n} ta savdo ${p} zarar keltirdi`,
+    worst:(pr,tf,w)=>`${pr} (${tf}) eng ko’p stop-loss bergan juftlik — yutish ${w}%`,
+    riskHi:(n,a)=>`${n} ta savdoda risk oylik o’rtacha (${a}%) dan yuqori bo’lgan`,
+    revenge:(d,n)=>`${d}: ketma-ket ${n} ta stop-loss — revenge trading xavfi`,
+    best:(e,s,p)=>`${e} + ${s} strategiyasi ${p} foyda berdi`,
+    bestPair:(pr,p)=>`Oy davomida eng foydali juftlik: ${pr} (${p})`,
+    emo:{Calm:'Xotirjam',Confident:'Ishonchli',Patient:'Sabrli',Greedy:'Ochko’zlik',FOMO:'FOMO',Fearful:'Qo’rquv',Rushed:'Shoshqaloqlik'}
   }
+};
+const LOC = {en:'en-US', ru:'ru-RU', uz:'uz-UZ'};
+
+/* ===== State ===== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const safeUrl = u => /^https?:\/\//i.test(u || '') ? esc(u) : '#';
+let lang = localStorage.getItem('bcpj_lang') || 'en';
+const T = k => { const d = I18N[lang] || I18N.en; return d[k] !== undefined ? d[k] : (I18N.en[k] !== undefined ? I18N.en[k] : k); };
+const EMO = e => (I18N[lang].emo[e]) || e;
+const KEY = 'bcpj_trades_v1', EMO_KEY = 'bcpj_emotions_v1', MON_KEY = 'bcpj_months_v1', BAL_KEY = 'bcpj_balance';
+const DEFAULT_EMO = ['Calm','Confident','Patient','Greedy','FOMO','Fearful','Rushed'];
+const TODAY = new Date().toISOString().slice(0, 10);
+const CUR = TODAY.slice(0, 7);
+let emotions = JSON.parse(localStorage.getItem(EMO_KEY) || 'null') || DEFAULT_EMO;
+let trades = JSON.parse(localStorage.getItem(KEY) || 'null') || SAMPLE();
+let months = JSON.parse(localStorage.getItem(MON_KEY) || '[]');
+let BALANCE = +localStorage.getItem(BAL_KEY) || 10000;
+let theme = localStorage.getItem('bcpj_theme') === 'light' ? 'light' : 'dark';
+const editing = new Set();
+const hl = new Set();
+
+function SAMPLE() {
+  const c = 'https://www.tradingview.com/chart/';
+  return [
+    {id:1,date:'2026-11-02',pair:'BTCUSDT',side:'L',beforeChart:c,afterChart:c,strategy:['SMC','Order Block'],risk:1,rr:3,outcome:'tp',override:null,tf:'4H',emotions:['Calm','Patient']},
+    {id:2,date:'2026-11-04',pair:'ETHUSDT',side:'S',beforeChart:c,afterChart:c,strategy:['Liquidity Sweep'],risk:1,rr:2,outcome:'sl',override:null,tf:'1H',emotions:['FOMO']},
+    {id:3,date:'2026-11-06',pair:'SOLUSDT',side:'L',beforeChart:c,afterChart:c,strategy:['Liquidity Sweep','SMC'],risk:0.5,rr:3,outcome:'tp',override:null,tf:'15m',emotions:['Confident']},
+    {id:4,date:'2026-11-09',pair:'BTCUSDT',side:'S',beforeChart:c,afterChart:'',strategy:['Order Block'],risk:2,rr:2,outcome:'be',override:null,tf:'1D',emotions:['Fearful']},
+    {id:5,date:'2026-11-11',pair:'ETHUSDT',side:'L',beforeChart:c,afterChart:c,strategy:['SMC'],risk:1,rr:4,outcome:'tp',override:null,tf:'4H',emotions:['Patient','Calm']},
+    {id:6,date:'2026-11-13',pair:'SOLUSDT',side:'S',beforeChart:c,afterChart:c,strategy:['Liquidity Sweep'],risk:1,rr:1.5,outcome:'sl',override:null,tf:'1H',emotions:['Rushed','Greedy']}
+  ];
 }
 
-/* ---------- helpers ---------- */
-function esc(s){
-  return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
-function money(n){
-  const v = Number(n) || 0;
-  return (v < 0 ? '-$' : '$') + Math.abs(v).toFixed(2);
-}
-function resultClass(r){ return r === 'Take Profit' ? 'tp' : r === 'Loss' ? 'loss' : 'be'; }
-function argClass(a){
-  if(a === 'SMC') return 'arg-SMC';
-  if(a === 'Order block') return 'arg-OB';
-  if(a === 'Order flow') return 'arg-OF';
-  if(a === 'Discount') return 'arg-D';
-  return 'tag';
-}
-function linkCell(url){
-  return url ? `<a href="${esc(url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📄 Ochish</a>` : '<span class="muted">—</span>';
-}
-function sortedAsc(list){
-  return list.slice().sort((a,b) => (a.date||'').localeCompare(b.date||'') || a.id - b.id);
+function save() {
+  localStorage.setItem(KEY, JSON.stringify(trades));
+  localStorage.setItem(EMO_KEY, JSON.stringify(emotions));
+  localStorage.setItem(MON_KEY, JSON.stringify(months));
+  localStorage.setItem(BAL_KEY, String(BALANCE));
 }
 
-/* ---------- table & stats ---------- */
-function filtered(){
-  const q = document.getElementById('search').value.trim().toLowerCase();
-  const fr = document.getElementById('fResult').value;
-  const fp = document.getElementById('fPos').value;
-  const fa = document.getElementById('fArg').value;
-  return trades
-    .filter(t => !q || (t.pair + ' ' + (t.comment||'')).toLowerCase().includes(q))
-    .filter(t => !fr || t.result === fr)
-    .filter(t => !fp || t.position === fp)
-    .filter(t => !fa || t.argument === fa)
-    .sort((a,b) => (b.date||'').localeCompare(a.date||''));
+/* ===== USD calculations ===== */
+const r2 = x => Math.round(x * 100) / 100;
+// Risk-based: risk $ = balance x risk%; TP = +risk$ x R:R; SL = -risk$; a manual $ override wins
+function pnl(t) {
+  if (t.override !== null && t.override !== undefined && t.override !== '') return r2(+t.override);
+  const riskUSD = BALANCE * (t.risk || 0) / 100;
+  if (t.outcome === 'tp') return r2(riskUSD * t.rr);
+  if (t.outcome === 'sl') return r2(-riskUSD);
+  return 0;
+}
+const fmt = x => {
+  const s = Math.abs(x).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  return (x > 0 ? '+' : x < 0 ? '-' : '') + '$' + s;
+};
+// Accepts "+$150", "-50", "1,200.5"; empty = clear the manual override
+const parseUSD = s => { const v = String(s ?? '').replace(/[$,\s]/g, '').replace(/^\+/, ''); return v === '' || isNaN(+v) ? null : r2(+v); };
+const sortTrades = a => a.sort((x, y) => x.date.localeCompare(y.date) || x.id - y.id);
+const ymAdd = (ym, k) => { const [y, m] = ym.split('-').map(Number); const d = new Date(y, m - 1 + k, 1); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); };
+// Oldest first (top) -> newest last (bottom)
+function allMonths() {
+  const s = new Set([...months, ...trades.map(t => t.date.slice(0, 7))]);
+  if (!s.size) s.add(CUR);
+  return [...s].sort();
+}
+function startMonth() {
+  const all = allMonths();
+  let next = ymAdd(all[all.length - 1], 1);
+  if (next < CUR) next = CUR;
+  if (!months.includes(next) && !trades.some(t => t.date.slice(0, 7) === next)) months.push(next);
+  save(); render();
+}
+const monthName = m => { const [y, mo] = m.split('-').map(Number); return new Date(y, mo - 1, 1).toLocaleString(LOC[lang], {month: 'long', year: 'numeric'}); };
+const newTrade = date => ({id: Date.now(), date, pair: 'BTCUSDT', side: 'L', beforeChart: '', afterChart: '',
+  strategy: [], risk: 1, rr: 2, outcome: 'be', override: null, tf: '1H', emotions: []});
+
+/* ===== Charts (one month only, values in USD) ===== */
+function charts(f) {
+  const W = 520, H = 220, TOP = 16, BOT = 170, P = 26, GREEN = '#16C784', RED = '#EA3943', n = f.length;
+  let c = 0;
+  const pts = [0, ...f.map(t => c = r2(c + pnl(t)))];
+  const mn = Math.min(0, ...pts), mx = Math.max(0, ...pts);
+  const X = i => P + i * (W - 2 * P) / Math.max(1, n);
+  const Y = v => TOP + (mx - v) / ((mx - mn) || 1) * (BOT - TOP);
+  const pairLabel = p => esc(String(p).replace(/(USDT|USDC|USD)$/, '/$1'));
+  const left = (t, p, col, x) =>
+    `<text x="${x}" y="${BOT + 16}" text-anchor="middle" font-size="10" style="fill:var(--txt)">${pairLabel(t.pair)}</text>` +
+    `<text x="${x}" y="${BOT + 30}" text-anchor="middle" font-size="10" fill="${col}">${fmt(p)}</text>`;
+  const right = (t, p, col, x) =>
+    (t.emotions.length ? t.emotions : ['—']).slice(0, 3).map((e, k) =>
+      `<text x="${x}" y="${BOT + 16 + k * 13}" text-anchor="middle" font-size="10" fill="${col}">${esc(EMO(e))}</text>`).join('');
+  const one = (title, fn) => {
+    const body = n ? `
+      <line x1="${P}" x2="${W - P}" y1="${Y(0)}" y2="${Y(0)}" stroke-dasharray="4" style="stroke:var(--zero)"/>
+      <line x1="${P}" x2="${W - P}" y1="${BOT}" y2="${BOT}" style="stroke:var(--line)"/>
+      ${f.map((t, i) => `<line x1="${X(i)}" y1="${Y(pts[i])}" x2="${X(i + 1)}" y2="${Y(pts[i + 1])}" stroke="${pnl(t) >= 0 ? GREEN : RED}" stroke-width="2.5" stroke-linecap="round"/>`).join('')}
+      ${f.map((t, i) => { const p = pnl(t), col = p >= 0 ? GREEN : RED;
+        return `<circle cx="${X(i + 1)}" cy="${Y(pts[i + 1])}" r="4" fill="${col}"/>` + fn(t, p, col, X(i + 1)); }).join('')}`
+      : `<text x="${W / 2}" y="${H / 2}" text-anchor="middle" font-size="12" style="fill:var(--mut)">${esc(T('noChart'))}</text>`;
+    return `<div class="card"><b>${esc(title)}</b><svg viewBox="0 0 ${W} ${H}">${body}</svg></div>`;
+  };
+  return one(T('chartPL'), left) + one(T('chartEmo'), right);
 }
 
-function renderStats(){
-  const n = trades.length;
-  const tp = trades.filter(t => t.result === 'Take Profit').length;
-  const loss = trades.filter(t => t.result === 'Loss').length;
-  const bu = trades.filter(t => t.result === 'BU').length;
-  const total = trades.reduce((s,t) => s + (Number(t.profit)||0), 0);
-  const rr = n ? trades.reduce((s,t) => s + (Number(t.rr)||0), 0) / n : 0;
-  const decided = tp + loss;
-  const win = decided ? Math.round(tp / decided * 100) : 0;
+/* ===== Monthly AI audit (rule-based, this month only, USD) ===== */
+function audit(f) {
+  const box = L => `<div class="card audit"><b>${esc(T('auditTitle'))}</b><ul>${L.map(([c, s]) => `<li class="${c}">${s}</li>`).join('')}</ul></div>`;
+  if (!f.length) return box([['', esc(T('noData'))]]);
+  const L = [];
+  const losses = f.filter(t => t.outcome === 'sl');
+  if (!losses.length) L.push(['good', esc(T('noLoss'))]);
 
-  document.getElementById('sTotal').textContent = n;
-  document.getElementById('sWin').textContent = win + '%';
-  const pEl = document.getElementById('sProfit');
-  pEl.textContent = money(total);
-  pEl.className = 'value ' + (total >= 0 ? 'pos' : 'neg');
-  document.getElementById('sRR').textContent = rr.toFixed(2);
-  document.getElementById('sBreakdown').textContent = `${tp} / ${loss} / ${bu}`;
-}
+  const em = {};
+  losses.forEach(t => (t.emotions.length ? t.emotions : ['—']).forEach(e => {
+    const o = em[e] || (em[e] = {n: 0, p: 0}); o.n++; o.p = r2(o.p + pnl(t));
+  }));
+  Object.entries(em).sort((a, b) => a[1].p - b[1].p).slice(0, 2)
+    .forEach(([e, o]) => L.push(['warn', esc(T('emoLoss')(EMO(e), o.n, fmt(o.p)))]));
 
-function render(){
-  renderStats();
-  const rows = filtered();
-  document.getElementById('empty').style.display = rows.length ? 'none' : 'block';
-  document.getElementById('tbody').innerHTML = rows.map(t => `
-    <tr onclick="openTrade(${t.id})">
-      <td>${esc(t.date)}</td>
-      <td><strong>${esc(t.pair)}</strong></td>
-      <td><span class="badge ${t.position === 'Long' ? 'long' : 'short'}">${esc(t.position)}</span></td>
-      <td>${linkCell(t.before)}</td>
-      <td>${linkCell(t.after)}</td>
-      <td><span class="tag ${argClass(t.argument)}">${esc(t.argument)}</span></td>
-      <td>${Number(t.risk).toFixed(1)}%</td>
-      <td>${Number(t.rr).toFixed(1)}</td>
-      <td class="${Number(t.profit) < 0 ? 'neg' : 'pos'}">${money(t.profit)}</td>
-      <td><span class="badge ${resultClass(t.result)}">${esc(t.result)}</span></td>
-      <td>${esc(t.comment)}${t.beforeImg || t.afterImg ? ' 🖼' : ''}</td>
-      <td><button class="btn danger small" onclick="event.stopPropagation(); deleteTrade(${t.id})">🗑</button></td>
-    </tr>`).join('');
-}
-
-/* ---------- equity curve ---------- */
-function initChart(){
-  const ctx = document.getElementById('equityChart');
-  equityChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Balans',
-        data: [],
-        borderWidth: 2.5,
-        tension: 0.25,
-        fill: false,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        pointBackgroundColor: [],
-        pointBorderColor: '#0f1115',
-        // segment color: green when the step went up, red when it went down
-        segment: {
-          borderColor: c => (c.p1.parsed.y >= c.p0.parsed.y ? GREEN : RED)
-        },
-        borderColor: GREEN
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {mode: 'index', intersect: false},
-      plugins: {
-        legend: {display: false},
-        tooltip: {
-          callbacks: {
-            label: c => 'Balans: ' + money(c.parsed.y)
-          }
-        }
-      },
-      scales: {
-        x: {ticks: {color: MUTED, maxRotation: 45, autoSkip: true}, grid: {color: '#2a2f3a'}},
-        y: {ticks: {color: MUTED, callback: v => '$' + v}, grid: {color: '#2a2f3a'}}
-      }
-    }
+  const pr = {};
+  f.forEach(t => {
+    const k = t.pair + ' (' + t.tf + ')';
+    const o = pr[k] || (pr[k] = {w: 0, l: 0, pair: t.pair, tf: t.tf});
+    if (t.outcome === 'tp') o.w++;
+    if (t.outcome === 'sl') o.l++;
   });
-  renderChart();
+  const worst = Object.values(pr).filter(o => o.l > 0)
+    .map(o => ({...o, wr: o.w / (o.w + o.l) * 100}))
+    .sort((a, b) => a.wr - b.wr || b.l - a.l)[0];
+  if (worst) L.push(['warn', esc(T('worst')(worst.pair, worst.tf, worst.wr.toFixed(0)))]);
+
+  const avg = f.reduce((a, t) => a + t.risk, 0) / f.length;
+  const hi = f.filter(t => t.risk > avg).length;
+  if (hi) L.push(['warn', esc(T('riskHi')(hi, avg.toFixed(2)))]);
+  const days = {};
+  f.forEach(t => { const d = days[t.date] || (days[t.date] = {r: 0, m: 0}); d.r = t.outcome === 'sl' ? d.r + 1 : 0; d.m = Math.max(d.m, d.r); });
+  Object.entries(days).filter(([, d]) => d.m >= 2)
+    .forEach(([d, v]) => L.push(['warn', esc(T('revenge')(d, v.m))]));
+
+  const combo = {};
+  f.forEach(t => t.emotions.forEach(e => t.strategy.forEach(s => {
+    const k = e + '\u0001' + s; combo[k] = r2((combo[k] || 0) + pnl(t));
+  })));
+  const bc = Object.entries(combo).sort((a, b) => b[1] - a[1])[0];
+  if (bc && bc[1] > 0) { const [e, s] = bc[0].split('\u0001'); L.push(['good', esc(T('best')(EMO(e), s, fmt(bc[1])))]); }
+  const bp = {};
+  f.forEach(t => bp[t.pair] = r2((bp[t.pair] || 0) + pnl(t)));
+  const bpE = Object.entries(bp).sort((a, b) => b[1] - a[1])[0];
+  if (bpE) L.push([bpE[1] >= 0 ? 'good' : 'warn', esc(T('bestPair')(bpE[0], fmt(bpE[1])))]);
+  return box(L);
 }
 
-function updateMonthOptions(){
-  const sel = document.getElementById('period');
-  const current = sel.value;
-  const months = [...new Set(trades.map(t => (t.date||'').slice(0,7)).filter(Boolean))].sort().reverse();
-  sel.innerHTML = `
-    <option value="all">Barcha oylar</option>
-    <option value="last30">Oxirgi 1 oy</option>
-    ${months.map(m => `<option value="${m}">${m}</option>`).join('')}`;
-  sel.value = [...sel.options].some(o => o.value === current) ? current : 'all';
+/* ===== Rows ===== */
+function linkCell(t, k, label) {
+  const v = t[k];
+  if (v && !editing.has(t.id + '|' + k))
+    return `<a class="link" href="${safeUrl(v)}" target="_blank" rel="noopener">${esc(label)} ↗</a> <span class="x" data-act="edit" data-key="${t.id}|${k}" title="${esc(T('edit'))}">✎</span>`;
+  return `<input class="url" placeholder="${esc(T('paste'))}" value="${esc(v)}" data-id="${t.id}" data-f="${k}">`;
+}
+function pnlCell(t, p) {
+  if (editing.has(t.id + '|override'))
+    return `<input class="usd" type="text" placeholder="+$150" title="${esc(T('ovTitle'))}" data-id="${t.id}" data-f="override" value="${t.override ?? ''}">`;
+  return `<span class="x ${p >= 0 ? 'pos' : 'neg'}" style="margin:0;font-weight:600" data-act="edit" data-key="${t.id}|override" title="${esc(T('ovTitle'))}">${fmt(p)}</span>`;
+}
+function rowHTML(t) {
+  const p = pnl(t), strat = t.strategy.join(', ');
+  const emoOpts = emotions.filter(e => !t.emotions.includes(e)).map(e => `<option value="${esc(e)}">${esc(EMO(e))}</option>`).join('');
+  return `<tr>
+    <td><button class="cv" data-act="compare" data-id="${t.id}" title="Chart comparison">📊</button></td>
+    <td><input type="date" class="d" data-id="${t.id}" data-f="date" value="${t.date}"></td>
+    <td><input class="pr" data-id="${t.id}" data-f="pair" value="${esc(t.pair)}"></td>
+    <td><button class="${t.side}" data-act="side" data-id="${t.id}">${t.side === 'L' ? esc(T('long')) : esc(T('short'))}</button></td>
+    <td>${linkCell(t, 'beforeChart', T('cBefore'))}</td>
+    <td>${linkCell(t, 'afterChart', T('cAfter'))}</td>
+    <td><input class="st" title="${esc(strat)}" data-id="${t.id}" data-f="strategy" value="${esc(strat)}" placeholder="${esc(T('strategyPh'))}"></td>
+    <td><input class="c" type="number" step="0.1" min="0" data-id="${t.id}" data-f="risk" value="${t.risk}">%</td>
+    <td>1:<input class="c" style="width:60px" type="number" step="0.1" min="0" data-id="${t.id}" data-f="rr" value="${t.rr}"></td>
+    <td><select class="${t.outcome}" data-id="${t.id}" data-f="outcome">
+      <option value="tp" title="${esc(T('tpFull'))}" ${t.outcome === 'tp' ? 'selected' : ''}>${esc(T('tp'))}</option>
+      <option value="sl" title="${esc(T('slFull'))}" ${t.outcome === 'sl' ? 'selected' : ''}>${esc(T('sl'))}</option>
+      <option value="be" title="${esc(T('beFull'))}" ${t.outcome === 'be' ? 'selected' : ''}>${esc(T('be'))}</option></select></td>
+    <td>${pnlCell(t, p)}</td>
+    <td><input class="tf" list="tfs" data-id="${t.id}" data-f="tf" value="${esc(t.tf)}"></td>
+    <td>${t.emotions.map(e => `<span class="tag">${esc(EMO(e))}<span class="x" data-act="rmemo" data-id="${t.id}" data-v="${esc(e)}">×</span></span>`).join('')}
+      <select data-id="${t.id}" data-f="addemo"><option value="">${esc(T('addEmo'))}</option>${emoOpts}<option value="__new">${esc(T('customEmo'))}</option></select></td>
+    <td><span class="x" data-act="del" data-id="${t.id}" title="${esc(T('del'))}">🗑</span></td>
+  </tr>`;
 }
 
-function renderChart(){
-  if(!equityChart) return;
-  updateMonthOptions();
-  const period = document.getElementById('period').value;
-  const startBal = parseFloat(document.getElementById('startBal').value) || 0;
+/* ===== One isolated monthly block ===== */
+function block(m) {
+  const f = sortTrades(trades.filter(t => t.date.slice(0, 7) === m));
+  const n = f.length, wins = f.filter(t => t.outcome === 'tp').length, losses = f.filter(t => t.outcome === 'sl').length;
+  const net = r2(f.reduce((a, t) => a + pnl(t), 0));
+  const avgR = n ? f.reduce((a, t) => a + pnl(t) / (BALANCE * (t.risk || 1) / 100 || 1), 0) / n : 0;
+  const wr = wins + losses ? wins / (wins + losses) * 100 : 0;
+  const highlighted = m < CUR || hl.has(m);
+  return `<section class="card${highlighted ? ' hl' : ''}">
+    <div class="bar" style="justify-content:space-between">
+      <h2>${esc(monthName(m))}</h2>
+      <div class="bar">
+        ${m < CUR ? `<span class="done">${esc(T('done'))}</span>` : ''}
+        <button data-act="analyze" data-m="${m}">${esc(T('analyze'))}</button>
+        <button class="p" data-act="newtrade" data-m="${m}">${esc(T('newTrade'))}</button>
+      </div>
+    </div>
+    <div class="kpis">
+      <div>${esc(T('kTrades'))}<b>${n}</b></div>
+      <div>${esc(T('kWin'))}<b>${wr.toFixed(1)}%</b></div>
+      <div>${esc(T('kNet'))}<b class="${net >= 0 ? 'pos' : 'neg'}">${fmt(net)}</b></div>
+      <div>${esc(T('kAvg'))}<b>${avgR.toFixed(2)}R</b></div>
+    </div>
+    <div class="charts">${charts(f)}</div>
+    ${audit(f)}
+    <div class="tw"><table>
+      <thead><tr>
+        <th style="width:40px"></th><th style="width:66px">${esc(T('cDate'))}</th><th style="width:78px">${esc(T('cPair'))}</th><th style="width:58px">${esc(T('cSide'))}</th>
+        <th style="width:62px">${esc(T('cBefore'))}</th><th style="width:56px">${esc(T('cAfter'))}</th><th>${esc(T('cStrat'))}</th>
+        <th style="width:56px">${esc(T('cRisk'))}</th><th style="width:64px">${esc(T('cRR'))}</th><th style="width:86px">${esc(T('cOut'))}</th>
+        <th style="width:96px">${esc(T('cPnl'))}</th><th style="width:50px">${esc(T('cTf'))}</th><th style="width:200px">${esc(T('cEmo'))}</th><th style="width:28px"></th>
+      </tr></thead>
+      <tbody>${f.map(rowHTML).join('') || `<tr><td colspan="14" class="sub" style="padding:16px">${esc(T('noRows'))}</td></tr>`}</tbody>
+    </table></div>
+  </section>`;
+}
 
-  let list = sortedAsc(trades);
-  if(period === 'last30'){
-    const d = new Date();
-    d.setDate(d.getDate() - 30);
-    const cutoff = d.toISOString().slice(0,10);
-    list = list.filter(t => (t.date||'') >= cutoff);
-  }else if(period !== 'all'){
-    list = list.filter(t => (t.date||'').startsWith(period));
-  }
+/* ===== Monthly & annual summaries (USD) ===== */
+function group(fn) {
+  const m = {};
+  trades.forEach(t => { const k = fn(t); const o = m[k] || (m[k] = {n: 0, p: 0}); o.n++; o.p = r2(o.p + pnl(t)); });
+  return Object.entries(m).sort();
+}
+function periodTable(title, g) {
+  return `<div class="card"><b>${esc(title)}</b><table style="table-layout:auto;margin-top:6px">
+    <tr><th>${esc(T('period'))}</th><th>${esc(T('cTrades'))}</th><th>${esc(T('cPnl'))}</th></tr>
+    ${g.map(([k, v]) => `<tr><td>${k}</td><td>${v.n}</td><td class="${v.p >= 0 ? 'pos' : 'neg'}">${fmt(v.p)}</td></tr>`).join('')}</table></div>`;
+}
 
-  const labels = ['Boshlanish'];
-  const data = [startBal];
-  const colors = [MUTED];
-  let bal = startBal;
-  list.forEach(t => {
-    bal += Number(t.profit) || 0;
-    labels.push(`${t.date} ${t.pair}`);
-    data.push(Number(bal.toFixed(2)));
-    colors.push((Number(t.profit) || 0) >= 0 ? GREEN : RED);
+function render() {
+  $('#periods').innerHTML = periodTable(T('monthly'), group(t => t.date.slice(0, 7))) + periodTable(T('annual'), group(t => t.date.slice(0, 4)));
+  $('#months').innerHTML = allMonths().map(block).join('');
+  $('#lang').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.l === lang));
+  $('#bal').value = BALANCE;
+}
+
+/* ===== Static labels, language, theme ===== */
+function applyStatic() {
+  document.documentElement.lang = lang;
+  document.title = T('title');
+  document.querySelectorAll('[data-i]').forEach(el => el.textContent = T(el.dataset.i));
+  document.querySelectorAll('[data-ph]').forEach(el => el.placeholder = T(el.dataset.ph));
+}
+function setLang(l) {
+  if (!I18N[l]) return;
+  lang = l; localStorage.setItem('bcpj_lang', l);
+  applyStatic(); render();
+}
+const MOON = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+const SUN = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+function applyTheme() { document.documentElement.dataset.theme = theme; $('#theme').innerHTML = theme === 'dark' ? MOON : SUN; }
+function toggleTheme() { theme = theme === 'dark' ? 'light' : 'dark'; localStorage.setItem('bcpj_theme', theme); applyTheme(); }
+
+/* ===== Split-screen chart comparison (view only; does not change trade data except uploaded images) ===== */
+const BEFORE_LABEL = 'BEFORE (OLDIN / DO) — Entry';
+const AFTER_LABEL = 'AFTER (KEYIN / POSLE) — Result (TP / SL)';
+// TradingView snapshot (tradingview.com/x/ID/) -> direct PNG; direct image URLs pass through; otherwise null
+function snapImage(url) {
+  const m = url.match(/tradingview\.com\/x\/([A-Za-z0-9]+)/i);
+  if (m) return `https://s3.tradingview.com/${m[1][0].toLowerCase()}/${m[1]}.png`;
+  return /\.(png|jpe?g|gif|webp)(\?.*)?$/i.test(url) ? url : null;
+}
+// Preview for regular chart links: webpage screenshot service (external, so it can be blocked in some sandboxes)
+const PREVIEW_BASE = 'https://image.thum.io/get/width/1200/crop/800/';
+function previewUrl(url) { return snapImage(url) || (PREVIEW_BASE + encodeURIComponent(url)); }
+const TV_INTERVAL = {'15m':'15','1H':'60','4H':'240','1D':'D'};
+function widgetView(t) {
+  const src = 'https://s.tradingview.com/widgetembed/?symbol=' + encodeURIComponent('BINANCE:' + t.pair) +
+    '&interval=' + (TV_INTERVAL[t.tf] || '60') + '&theme=dark&style=1&locale=en';
+  return `<iframe class="frame" src="${esc(src)}" referrerpolicy="no-referrer-when-downgrade" title="TradingView ${esc(t.pair)}"></iframe>`;
+}
+function imgView(src) { return `<div class="imgwrap"><img src="${esc(src)}" alt=""></div>`; }
+// Each panel: uploaded/pasted image (stored locally) > TradingView snapshot PNG > screenshot preview; widget fallback on error
+function paneHTML(side, label, t, url) {
+  const img = t[side + 'Img'];
+  const open = url ? `<a class="open" href="${safeUrl(url)}" target="_blank" rel="noopener">Open in TradingView ↗</a>` : '';
+  const acts = `<div class="paneact"><button data-cmp="upload" data-side="${side}">⬆ Upload / Paste</button>${img ? `<button data-cmp="clear" data-side="${side}">✕ Remove</button>` : ''}<span class="hint">Click panel, then Ctrl+V</span></div>`;
+  let view;
+  if (img) view = imgView(img);
+  else if (!url) view = `<div class="ph">No TradingView link added</div>`;
+  else if (snapImage(url)) view = `<div class="imgwrap"><img class="snap" src="${esc(snapImage(url))}" alt=""></div>`;
+  else view = `<div class="imgwrap"><img class="snap" src="${esc(previewUrl(url))}" alt=""></div>`;
+  return `<div class="pane" data-side="${side}"><div class="plabel">${esc(label)}</div>${open}${view}${acts}</div>`;
+}
+function openCompare(id) {
+  const t = trades.find(x => x.id === id); if (!t) return;
+  const p = pnl(t);
+  cmpId = id; setTarget(null);
+  $('#cmpPair').textContent = t.pair;
+  $('#cmpSide').innerHTML = `<button class="${t.side}" style="cursor:default">${t.side === 'L' ? esc(T('long')) : esc(T('short'))}</button>`;
+  $('#cmpRisk').textContent = t.risk + '%';
+  $('#cmpRR').textContent = '1:' + t.rr;
+  $('#cmpPnl').innerHTML = `<span class="${p >= 0 ? 'pos' : 'neg'}">${fmt(p)}</span>`;
+  $('#cmpBody').innerHTML = paneHTML('before', BEFORE_LABEL, t, t.beforeChart) + paneHTML('after', AFTER_LABEL, t, t.afterChart);
+  $('#cmpBody').querySelectorAll('img.snap').forEach(im => im.onerror = () => {
+    im.parentElement.outerHTML = widgetView(t) + '<div class="cnote">Note: External images are blocked in Claude preview — open the published app in a browser tab to view your exact link snapshot.</div>';
   });
-
-  equityChart.data.labels = labels;
-  equityChart.data.datasets[0].data = data;
-  equityChart.data.datasets[0].pointBackgroundColor = colors;
-  equityChart.update();
-
-  const periodProfit = bal - startBal;
-  document.getElementById('chartSummary').innerHTML =
-    `${list.length} ta savdo · Davr foyda/zarari: <span class="${periodProfit >= 0 ? 'pos' : 'neg'}">${money(periodProfit)}</span> · Yakuniy balans: ${money(bal)}`;
+  $('#cmpBody').querySelectorAll('.imgwrap').forEach(w => w.onclick = () => w.classList.toggle('z'));
+  $('#cmp').classList.remove('hidden');
 }
+function closeCompare() { $('#cmp').classList.add('hidden'); $('#cmpBody').innerHTML = ''; }
 
-function onStartBalChange(){
-  try{ localStorage.setItem(START_KEY, document.getElementById('startBal').value); }catch(e){}
-  renderChart();
+let cmpId = null, activeSide = null;
+function setTarget(side) {
+  activeSide = side;
+  $('#cmpTarget').textContent = side ? 'Paste target: ' + side.toUpperCase() : 'Click a panel, then Ctrl+V';
+  document.querySelectorAll('#cmp .pane').forEach(p => p.classList.toggle('act', p.dataset.side === side));
 }
-
-/* ---------- detail modal ---------- */
-function setFormValues(t){
-  const f = document.getElementById('mForm');
-  f.date.value = t.date || new Date().toISOString().slice(0,10);
-  f.pair.value = t.pair || '';
-  f.position.value = t.position || 'Long';
-  f.argument.value = t.argument || 'SMC';
-  f.risk.value = t.risk ?? 1;
-  f.rr.value = t.rr ?? 1.3;
-  f.profit.value = t.profit ?? 0;
-  f.result.value = t.result || 'Take Profit';
-  f.before.value = t.before || '';
-  f.after.value = t.after || '';
-  f.comment.value = t.comment || '';
-}
-
-function renderImgs(){
-  ['before','after'].forEach(k => {
-    const box = document.getElementById(k === 'before' ? 'prevBefore' : 'prevAfter');
-    box.innerHTML = mImgs[k]
-      ? `<img src="${mImgs[k]}" alt="${k}">`
-      : '<span>Rasm yo\'q</span>';
-  });
-}
-
-function openNew(){
-  mTrade = null;
-  mImgs = {before:'', after:''};
-  document.getElementById('mTitle').textContent = 'Yangi savdo';
-  document.getElementById('mDelete').style.display = 'none';
-  setFormValues({});
-  renderImgs();
-  showModal();
-}
-
-function openTrade(id){
-  const t = trades.find(x => x.id === id);
-  if(!t) return;
-  mTrade = t;
-  mImgs = {before: t.beforeImg || '', after: t.afterImg || ''};
-  document.getElementById('mTitle').textContent = `${t.pair} · ${t.date}`;
-  document.getElementById('mDelete').style.display = '';
-  setFormValues(t);
-  renderImgs();
-  showModal();
-}
-
-function showModal(){
-  document.getElementById('modal').classList.add('show');
-  document.body.style.overflow = 'hidden';
-}
-function closeModal(){
-  document.getElementById('modal').classList.remove('show');
-  document.body.style.overflow = '';
-  mTrade = null;
-}
-
-function compressImage(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const img = new Image();
-      img.onload = () => {
-        const max = 1400;
-        const s = Math.min(1, max / Math.max(img.width, img.height));
-        const c = document.createElement('canvas');
-        c.width = Math.round(img.width * s);
-        c.height = Math.round(img.height * s);
-        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-        resolve(c.toDataURL('image/jpeg', 0.85));
-      };
-      img.onerror = reject;
-      img.src = reader.result;
+// Resize to max 1600px and compress to JPEG so images fit in localStorage
+function toDataURL(file) {
+  return new Promise((res, rej) => {
+    const src = URL.createObjectURL(file), img = new Image();
+    img.onload = () => {
+      const s = Math.min(1, 1600 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * s); c.height = Math.round(img.height * s);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(src); res(c.toDataURL('image/jpeg', 0.85));
     };
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
+    img.onerror = () => { URL.revokeObjectURL(src); rej(new Error('image')); };
+    img.src = src;
   });
 }
-
-async function uploadImg(which, ev){
-  const file = ev.target.files[0];
-  if(!file) return;
-  try{
-    mImgs[which] = await compressImage(file);
-    renderImgs();
-  }catch(e){
-    alert("Rasmni o'qib bo'lmadi.");
+async function setImg(side, data) {
+  const t = trades.find(x => x.id === cmpId); if (!t) return;
+  const prev = t[side + 'Img'];
+  t[side + 'Img'] = data;
+  try { save(); } catch (err) { t[side + 'Img'] = prev; alert('Browser storage is full. Remove an image or export and clear older data.'); return; }
+  openCompare(cmpId); setTarget(side);
+}
+$('#cmp').addEventListener('click', e => {
+  const b = e.target.closest('[data-cmp]');
+  if (b) {
+    setTarget(b.dataset.side);
+    if (b.dataset.cmp === 'upload') $('#cmpFile').click();
+    if (b.dataset.cmp === 'clear') setImg(b.dataset.side, null);
+    return;
   }
-  ev.target.value = '';
-}
-function clearImg(which){
-  mImgs[which] = '';
-  renderImgs();
-}
-
-function zoomImg(which){
-  if(!mImgs[which]) return;
-  document.getElementById('lightboxImg').src = mImgs[which];
-  document.getElementById('lightbox').classList.add('show');
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('show');
-}
-
-function saveModal(e){
+  const p = e.target.closest('.pane[data-side]');
+  if (p && !e.target.closest('a,iframe')) setTarget(p.dataset.side);
+});
+$('#cmpFile').onchange = async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f || !activeSide) return;
+  try { await setImg(activeSide, await toDataURL(f)); } catch (err) { alert('Could not read that image.'); }
+};
+document.addEventListener('paste', async e => {
+  if ($('#cmp').classList.contains('hidden') || !activeSide) return;
+  const item = [...(e.clipboardData ? e.clipboardData.items : [])].find(i => i.type.startsWith('image/'));
+  if (!item) return;
   e.preventDefault();
-  const f = e.target;
-  const data = {
-    date: f.date.value,
-    pair: f.pair.value.trim().toUpperCase(),
-    position: f.position.value,
-    argument: f.argument.value,
-    risk: parseFloat(f.risk.value) || 0,
-    rr: parseFloat(f.rr.value) || 0,
-    profit: parseFloat(f.profit.value) || 0,
-    result: f.result.value,
-    before: f.before.value.trim(),
-    after: f.after.value.trim(),
-    comment: f.comment.value.trim(),
-    beforeImg: mImgs.before,
-    afterImg: mImgs.after
-  };
-  if(mTrade){
-    const i = trades.findIndex(x => x.id === mTrade.id);
-    if(i > -1) trades[i] = {...trades[i], ...data};
-  }else{
-    trades.push({id: Date.now(), ...data});
+  try { await setImg(activeSide, await toDataURL(item.getAsFile())); } catch (err) { alert('Could not read that image.'); }
+});
+$('#cmpClose').onclick = closeCompare;
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('#cmp').classList.contains('hidden')) closeCompare(); });/* ===== Events ===== */
+document.addEventListener('change', e => {
+  const el = e.target, f = el.dataset.f;
+  if (!f) return;
+  const t = trades.find(x => x.id === +el.dataset.id);
+  if (!t) return;
+  if (f === 'addemo') {
+    let v = el.value;
+    if (v === '__new') { v = (prompt(T('newEmo')) || '').trim(); if (v && !emotions.includes(v)) emotions.push(v); }
+    if (v && !t.emotions.includes(v)) t.emotions.push(v);
   }
-  if(save()){
-    closeModal();
-    render();
-    renderChart();
+  else if (f === 'strategy') t.strategy = el.value.split(',').map(s => s.trim()).filter(Boolean);
+  else if (f === 'risk') t.risk = Math.max(0, +el.value || 0);
+  else if (f === 'rr') t.rr = Math.max(0, +el.value || 0);
+  else if (f === 'override') {
+    const v = parseUSD(el.value);
+    if (el.value.trim() !== '' && v === null) { alert('Enter an amount like +$150 or -$50'); render(); return; }
+    t.override = v; editing.delete(t.id + '|override');
   }
-}
-
-function deleteFromModal(){
-  if(!mTrade) return;
-  if(!confirm("Bu savdoni o'chirasizmi?")) return;
-  deleteTrade(mTrade.id);
-  closeModal();
-}
-
-function deleteTrade(id){
-  if(!confirm("Bu savdoni o'chirasizmi?")) return;
-  trades = trades.filter(t => t.id !== id);
-  save();
-  render();
-  renderChart();
-}
-
-/* ---------- import / export ---------- */
-function exportJSON(){
-  const blob = new Blob([JSON.stringify(trades, null, 2)], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'trading-journal-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click();
-  URL.revokeObjectURL(a.href);
-}
-function importJSON(ev){
-  const file = ev.target.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = () => {
-    try{
-      const data = JSON.parse(reader.result);
-      if(!Array.isArray(data)) throw new Error();
-      trades = data.map(t => ({...t, id: t.id ?? Date.now() + Math.random()}));
-      save();
-      render();
-      renderChart();
-    }catch(err){
-      alert("Fayl noto'g'ri formatda.");
-    }
-  };
-  reader.readAsText(file);
-  ev.target.value = '';
-}
-
-/* ---------- init ---------- */
-document.addEventListener('keydown', e => {
-  if(e.key === 'Escape'){ closeLightbox(); closeModal(); }
+  else if (f === 'beforeChart' || f === 'afterChart') {
+    const v = el.value.trim();
+    if (v && !/^https?:\/\//i.test(v)) { alert(T('badLink')); render(); return; }
+    t[f] = v; editing.delete(t.id + '|' + f);
+  }
+  else t[f] = el.value;
+  save(); render();
 });
 
-try{
-  const sb = localStorage.getItem(START_KEY);
-  if(sb !== null) document.getElementById('startBal').value = sb;
-}catch(e){}
+$('#bal').onchange = e => {
+  const v = +e.target.value;
+  if (v > 0) { BALANCE = r2(v); save(); render(); }
+  else e.target.value = BALANCE;
+};
 
+document.addEventListener('click', e => {
+  if (e.target.closest('#theme')) { toggleTheme(); return; }
+  const lb = e.target.closest('#lang button'); if (lb) { setLang(lb.dataset.l); return; }
+  if (e.target.closest('#newmonth')) { startMonth(); return; }
+  const a = e.target.closest('[data-act]'); if (!a) return;
+  const act = a.dataset.act;
+  if (act === 'compare') { openCompare(+a.dataset.id); return; }
+  if (act === 'edit') { editing.add(a.dataset.key); render(); return; }
+  if (act === 'analyze') { const m = a.dataset.m; hl.has(m) ? hl.delete(m) : hl.add(m); render(); return; }
+  if (act === 'newtrade') { const m = a.dataset.m; trades.push(newTrade(m === CUR ? TODAY : m + '-01')); save(); render(); return; }
+  const t = trades.find(x => x.id === +a.dataset.id);
+  if (act === 'side' && t) t.side = t.side === 'L' ? 'S' : 'L';
+  else if (act === 'del' && t && confirm(T('confirmDel'))) trades = trades.filter(x => x.id !== t.id);
+  else if (act === 'rmemo' && t) t.emotions = t.emotions.filter(x => x !== a.dataset.v);
+  else return;
+  save(); render();
+});
+
+$('#exp').onclick = () => {
+  const blob = new Blob([JSON.stringify({version: 4, balance: BALANCE, trades, emotions, months}, null, 2)], {type: 'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'behruz-journal-' + TODAY + '.json';
+  a.click();
+};
+$('#imp').onchange = e => {
+  const file = e.target.files[0]; if (!file) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result), incoming = Array.isArray(d) ? d : d.trades;
+      if (!Array.isArray(incoming)) throw new Error();
+      const ids = new Set(trades.map(t => t.id));
+      incoming.forEach(t => { if (!ids.has(t.id)) trades.push(t); });
+      if (d.emotions) emotions = [...new Set([...emotions, ...d.emotions])];
+      if (d.months) months = [...new Set([...months, ...d.months])];
+      if (d.balance > 0) BALANCE = r2(+d.balance);
+      save(); render();
+    } catch (err) { alert(T('badFile')); }
+  };
+  r.readAsText(file);
+  e.target.value = '';
+};
+
+/* ===== Paywall: $50 Pro Access via Lava.top ===== */
+const PAY_URL = 'https://lava.top';
+const BACKUP_CODE = 'BEHRUZ50';
+const UNLOCK_PARAM = 'lava50';
+function isUnlocked() {
+  return localStorage.getItem('bcpj_unlocked') === 'true' || ['vip', 'pro'].includes(localStorage.getItem('bcpj_access'));
+}
+function grantAccess() {
+  localStorage.setItem('bcpj_unlocked', 'true');
+  $('#gate').classList.add('hidden');
+}
+const qs = new URLSearchParams(location.search);
+if (qs.get('unlocked') === UNLOCK_PARAM) grantAccess();
+if (qs.get('access') === CONFIG.VIP_KEY) localStorage.setItem('bcpj_access', 'vip');
+if (qs.has('unlocked') || qs.has('access')) history.replaceState(null, '', location.pathname + location.hash);
+if (!isUnlocked()) $('#gate').classList.remove('hidden');
+
+$('#payBtn').onclick = () => { window.location.href = PAY_URL; };
+$('#backupToggle').onclick = () => $('#backupBox').classList.toggle('hidden');
+$('#unlock').onclick = () => {
+  if ($('#lic').value.trim().toUpperCase() === BACKUP_CODE) { grantAccess(); $('#gerr').textContent = ''; }
+  else $('#gerr').textContent = 'Invalid backup code. Check your Lava receipt or contact support.';
+};
+$('#lic').onkeydown = e => { if (e.key === 'Enter') $('#unlock').click(); };
+
+applyTheme();
+applyStatic();
 render();
-initChart();
 </script>
 </body>
 </html>
